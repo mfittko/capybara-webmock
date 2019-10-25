@@ -3,6 +3,7 @@ require 'capybara/webmock'
 
 class Capybara::Webmock::Proxy < Rack::Proxy
   ALLOWED_HOSTS = allowed_hosts = ['127.0.0.1', 'localhost', /(.*\.|\A)lvh.me/]
+  @@cache = {}
 
   def call(env)
     @streaming = true
@@ -13,7 +14,10 @@ class Capybara::Webmock::Proxy < Rack::Proxy
     request = Rack::Request.new(env)
 
     if allowed_host?(request.host)
-      super(env)
+      unless @@cache[Digest::SHA1.hexdigest(request.path + request.params)].present?
+        @@cache[Digest::SHA1.hexdigest(request.path + request.params)] = super(env)
+      end
+      @@cache[Digest::SHA1.hexdigest(request.path + request.params)]
     else
       headers = {
         'Content-Type' => 'text/html',
@@ -38,3 +42,4 @@ class Capybara::Webmock::Proxy < Rack::Proxy
     end
   end
 end
+
