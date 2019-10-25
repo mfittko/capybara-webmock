@@ -1,5 +1,6 @@
 require 'rack/proxy'
 require 'capybara/webmock'
+require 'digest/sha1'
 
 class Capybara::Webmock::Proxy < Rack::Proxy
   ALLOWED_HOSTS = allowed_hosts = ['127.0.0.1', 'localhost', /(.*\.|\A)lvh.me/]
