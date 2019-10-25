@@ -15,10 +15,7 @@ class Capybara::Webmock::Proxy < Rack::Proxy
     request = Rack::Request.new(env)
 
     if allowed_host?(request.host)
-      unless @@cache[Digest::SHA1.hexdigest(request.path + request.params)].present?
-        @@cache[Digest::SHA1.hexdigest(request.path + request.params)] = super(env)
-      end
-      @@cache[Digest::SHA1.hexdigest(request.path + request.params)]
+      @@cache[Digest::SHA1.hexdigest(request.env.inspect)] ||= super(env)
     else
       headers = {
         'Content-Type' => 'text/html',
